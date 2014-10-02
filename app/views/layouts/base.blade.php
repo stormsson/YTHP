@@ -10,7 +10,7 @@
     @show
 
     @yield('extra_meta')
-    <title> YTHP | </title>
+    <title> YTHP | @yield('title') </title>
 
     @section('css_head')
 
