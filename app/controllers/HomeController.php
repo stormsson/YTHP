@@ -17,7 +17,8 @@ class HomeController extends BaseController
 
     public function index()
     {
-        return View::make('home.index');
-    }
+        $args = array();
 
+        return Response::make(View::make("home/index", $args), 200);
+    }
 }
