@@ -1,28 +1,16 @@
 <?php
 
-use Stormsson\Ythp\Authenticator;
 
 class HomeController extends BaseController
 {
     protected $authenticator = false;
-    /*
-	|--------------------------------------------------------------------------
-	| Default Home Controller
-	|--------------------------------------------------------------------------
-	|
-	| You may wish to use controllers instead of, or in addition to, Closure
-	| based routes. That's great! Here is an example controller method to
-	| get you started. To route to this controller, just add the route:
-	|
-	|	Route::get('/', 'HomeController@showWelcome');
-	|
-	*/
 
     public function index()
     {
         $args = array();
 
-        $this->authenticator = new Authenticator();
+        $this->authenticator = App::make('authenticator');
+
         $args['anti_forgery_token'] = $this->authenticator->getAntiForgeryToken();
         $args['items'] = array();
 
@@ -56,7 +44,7 @@ class HomeController extends BaseController
     public function auth()
     {
         $data = Input::all();
-        $this->authenticator = new Authenticator();
+        $this->authenticator = App::make('authenticator');
 
         if ($data['state'] != $this->authenticator->getAntiForgeryToken()) {
             return Response::json(array(), 401);
@@ -76,7 +64,7 @@ class HomeController extends BaseController
 
     public function logout()
     {
-        $this->authenticator = new Authenticator();
+        $this->authenticator = App::make('authenticator');
         $this->authenticator->logout();
         return Redirect::route('home');
     }
