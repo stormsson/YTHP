@@ -6,7 +6,7 @@
 	"require": {
 		"laravel/framework": "4.2.*",
 		"fzaninotto/faker": "v1.3.0",
-		"google/apiclient":"1.0.4-beta"
+		"google/apiclient":"1.0.6-beta"
 	},
 	"autoload": {
 		"classmap": [

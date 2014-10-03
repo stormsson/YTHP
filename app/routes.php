@@ -12,3 +12,4 @@
 */
 
 Route::get('/', array("as" => "home", "uses" => 'HomeController@index'));
+Route::get('/storetoken', array("as" => "store_token", "uses" => 'HomeController@storeToken'));
