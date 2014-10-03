@@ -15,10 +15,15 @@ Home
     data-redirecturi="postmessage"
     data-accesstype="offline"
     data-cookiepolicy="single_host_origin"
+    data-state="{{$anti_forgery_token}}"
     data-callback="signInCallback">
   </span>
 </div>
 <div id="result"></div>
+
+<div id="logout" style="display:none">
+    <a href="{{route('logout')}}">Logout</a>
+</div>
 
     <!-- Place this asynchronous JavaScript just before your </body> tag -->
     <script type="text/javascript">
@@ -33,15 +38,23 @@ Home
      function signInCallback(authResult) {
         console.log('authresult:');
         console.log(authResult);
-      if (authResult['code']) {
+
+        if(authResult['status']['signed_in'])
+        {
+            $('#signinButton').hide();
+            $('#logout').show();
+        }
+
+        if (authResult['code']) {
 
         // Nascondi il pulsante di accesso ora che l'utente è autorizzato. Ad esempio:
-        $('#signinButton').attr('style', 'display: none');
+        $('#signinButton').hide();
+        $('#logout').show();
 
         // Invia il codice al server
         $.ajax({
           type: 'GET',
-          url: '{{route('store_token')}}',
+          url: '{{route('auth')}}',
           //contentType: 'application/octet-stream; charset=utf-8',
           success: function(result) {
             // Gestisci o verifica la risposta del server, se necessario.
@@ -49,11 +62,7 @@ Home
             // Stampa l'elenco di persone che l'utente permette all'app di conoscere
             // nella Console.
             console.log(result);
-            if (result['profile'] && result['people']){
-              $('#results').html('Hello ' + result['profile']['displayName'] + '. You successfully made a server side call to people.get and people.list');
-            } else {
-              $('#results').html('Failed to make a server-side call. Check your configuration and console.');
-            }
+            $('#result').html(result);
           },
           data: {
             'code': authResult['code'] ,

@@ -12,4 +12,6 @@
 */
 
 Route::get('/', array("as" => "home", "uses" => 'HomeController@index'));
-Route::get('/storetoken', array("as" => "store_token", "uses" => 'HomeController@storeToken'));
+Route::get('/logout', array("as" => "logout", "uses" => 'HomeController@logout'));
+
+Route::get('/auth', array("as" => "auth", "uses" => 'HomeController@auth'));
