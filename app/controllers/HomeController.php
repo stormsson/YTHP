@@ -16,12 +16,14 @@ class HomeController extends BaseController
 
         $client = $this->authenticator->doAuth();
         //var_dump($client);
-        var_dump(Session::all());
+        //var_dump(Session::all());
         //var_dump(Session::get('google_access_token', false));
 
         if ($client) {
             $args['items'] = $this->getYoutubeStuff($client);
         }
+
+        $args['logged'] = $this->authenticator->isLogged();
 
 
         return Response::make(View::make("home/index", $args), 200);

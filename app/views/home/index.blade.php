@@ -17,6 +17,21 @@ Home
     </ul>
 </div>
 <hr/>
+
+<div>
+    <ul>
+        @foreach($items as $i)
+            <li>
+                {{ json_encode($i) }}
+            </li>
+            <li>
+                {{ json_encode($i->getSnippet()) }}
+            </li>
+        @endforeach
+    </ul>
+</div>
+<hr/>
+
 <div id="signinButton">
   <span class="g-signin"
     data-scope="https://www.googleapis.com/auth/youtube.readonly"
@@ -30,7 +45,7 @@ Home
 </div>
 <div id="result"></div>
 
-<div id="logout" style="display:none">
+<div id="logout" >
     <a href="{{route('logout')}}">Logout</a>
 </div>
 
@@ -44,7 +59,7 @@ Home
 
 
 
-     function signInCallback(authResult) {
+    function signInCallback(authResult) {
         console.log('authresult:');
         console.log(authResult);
 
@@ -55,39 +70,36 @@ Home
         }
 
         if (authResult['code']) {
+            // Nascondi il pulsante di accesso ora che l'utente è autorizzato. Ad esempio:
+            $('#signinButton').hide();
+            $('#logout').show();
 
-        // Nascondi il pulsante di accesso ora che l'utente è autorizzato. Ad esempio:
-        $('#signinButton').hide();
-        $('#logout').show();
+            // Invia il codice al server
+            $.ajax({
+              type: 'GET',
+              url: '{{route('auth')}}',
+              //contentType: 'application/octet-stream; charset=utf-8',
+              success: function(result) {
+                // Gestisci o verifica la risposta del server, se necessario.
 
-        // Invia il codice al server
-        $.ajax({
-          type: 'GET',
-          url: '{{route('auth')}}',
-          //contentType: 'application/octet-stream; charset=utf-8',
-          success: function(result) {
-            // Gestisci o verifica la risposta del server, se necessario.
-
-            // Stampa l'elenco di persone che l'utente permette all'app di conoscere
-            // nella Console.
-            console.log(result);
-            $('#result').html(result);
-          },
-          data: {
-            'code': authResult['code'] ,
-            'state': '{{$anti_forgery_token}}'
-          }
-        });
-      } else if (authResult['error']) {
+                console.log('son qua');
+                console.log(result);
+                $('#result').html(result);
+              },
+              data: {
+                'code': authResult['code'] ,
+                'state': '{{$anti_forgery_token}}'
+              }
+            });
+        } else if (authResult['error']) {
         // Si è verificato un errore.
         // Possibili codici di errore:
         //   "access_denied" - L'utente ha negato l'accesso alla tua app
         //   "immediate_failed" - Impossibile eseguire l'accesso automatico dell'utente
         // console.log('There was an error: ' + authResult['error']);
-      }
+       }
+
     }
-
-
     </script>
 
 

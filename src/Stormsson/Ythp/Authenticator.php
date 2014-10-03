@@ -87,4 +87,9 @@ class Authenticator
         Session::forget(self::SESSION_PREFIX.'anti_forgery_token');
         Session::forget(self::SESSION_PREFIX.'google_access_token');
     }
+
+    public function isLogged()
+    {
+        return false !== $this->google_client;
+    }
 }
