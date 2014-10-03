@@ -7,7 +7,16 @@ Home
 @section('body')
   <h1>You have arrived.</h1>
 
-
+<div>
+    <ul>
+        @foreach($items as $i)
+            <li>
+                {{ $i->getSnippet()->getTitle() }} : {{ $i->getSnippet()->getDescription() }}
+            </li>
+        @endforeach
+    </ul>
+</div>
+<hr/>
 <div id="signinButton">
   <span class="g-signin"
     data-scope="https://www.googleapis.com/auth/youtube.readonly"

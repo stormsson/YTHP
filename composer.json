@@ -16,7 +16,11 @@
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/tests/TestCase.php"
-		]
+		],
+
+		"psr-4": {
+			"Stormsson\\": "src/Stormsson"
+		}
 	},
 	"scripts": {
 		"post-install-cmd": [
