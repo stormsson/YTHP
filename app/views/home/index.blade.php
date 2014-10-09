@@ -46,7 +46,7 @@ Home
 <div id="result"></div>
 
 <div id="logout" >
-    <a href="{{route('logout')}}">Logout</a>
+    <a href="{{route('logout')}}" onclick="gapi.auth.signOut();">Logout</a>
 </div>
 
     <!-- Place this asynchronous JavaScript just before your </body> tag -->
@@ -60,7 +60,7 @@ Home
 
 
     function signInCallback(authResult) {
-        console.log('authresult:');
+        console.log('signinCallback:');
         console.log(authResult);
 
         if(authResult['status']['signed_in'])
@@ -81,10 +81,16 @@ Home
               //contentType: 'application/octet-stream; charset=utf-8',
               success: function(result) {
                 // Gestisci o verifica la risposta del server, se necessario.
-
-                console.log('son qua');
+                console.log("auth result:");
                 console.log(result);
                 $('#result').html(result);
+              },
+              error: function(jqXHR,textStatus,errorThrown)
+              {
+
+                console.log("error:");
+                console.log(textStatus);
+
               },
               data: {
                 'code': authResult['code'] ,

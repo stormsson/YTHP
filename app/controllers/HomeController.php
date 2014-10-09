@@ -9,6 +9,7 @@ class HomeController extends BaseController
     {
         $args = array();
 
+
         $this->authenticator = App::make('authenticator');
 
         $args['anti_forgery_token'] = $this->authenticator->getAntiForgeryToken();
@@ -16,7 +17,7 @@ class HomeController extends BaseController
 
         $client = $this->authenticator->doAuth();
         //var_dump($client);
-        //var_dump(Session::all());
+        var_dump(Session::all());
         //var_dump(Session::get('google_access_token', false));
 
         if ($client) {
@@ -36,6 +37,7 @@ class HomeController extends BaseController
         $subscriptions = $youtubeService->subscriptions->listSubscriptions('id,snippet', array('mine'=>true));
 
         $items = $subscriptions->items;
+        var_dump("items: ".count($items));
         foreach ($items as $i) {
             //var_dump($i->getSnippet());
         }
@@ -54,6 +56,7 @@ class HomeController extends BaseController
 
         $code = $data['code'];
         $client = $this->authenticator->doAuth($code);
+
 
         if ($client) {
             $this->getYoutubeStuff($client);

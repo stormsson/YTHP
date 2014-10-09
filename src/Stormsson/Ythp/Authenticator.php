@@ -8,6 +8,7 @@ class Authenticator
 {
     protected $anti_forgery_token   = false;
     protected $google_access_token  = false;
+    protected $google_refresh_token  = false;
     protected $google_client = null;
 
     const SESSION_PREFIX = 'ythp.';
@@ -19,6 +20,7 @@ class Authenticator
         $this->google_client->setClientSecret(Config::get('ythp.client_secret'));
         $this->google_client->setScopes(array('https://www.googleapis.com/auth/youtube.readonly'));
         $this->google_client->setRedirectUri('postmessage');
+        $this->google_client->setAccessType('offline');
 
         if ($aft = Session::get(self::SESSION_PREFIX.'anti_forgery_token', false)) {
             $this->anti_forgery_token = $aft;
@@ -26,6 +28,10 @@ class Authenticator
 
         if ($gat = Session::get(self::SESSION_PREFIX.'google_access_token', false)) {
             $this->google_access_token = $gat;
+        }
+
+        if ($grt = Session::get(self::SESSION_PREFIX.'google_refresh_token', false)) {
+            $this->google_refresh_token = $grt;
         }
     }
 
@@ -53,22 +59,31 @@ class Authenticator
     {
         $client = $this->getGoogleClient();
 
+        //$client->refreshToken($this->google_refresh_token);
         if ($this->google_access_token) {
             $token = json_decode($this->google_access_token);
             if (time() > $token->created + $token->expires_in) {
-                $this->logout();
-                return false;
+                $client->refreshToken($this->google_access_token);
+                //$this->logout();
+                //return false;
+            } else {
+                $client->setAccessToken($this->google_access_token);
             }
 
-            $client->setAccessToken($this->google_access_token);
+
             Session::put(self::SESSION_PREFIX.'google_access_token', $client->getAccessToken());
             return $client;
         } else {
             // non ho il google access token
             if ($code) {
-                $client->authenticate($code);
+                $pippo = $client->authenticate($code);
+
                 $this->google_access_token = $client->getAccessToken();
+                $this->google_refresh_token = $client->getRefreshToken();
+
+
                 Session::put(self::SESSION_PREFIX.'google_access_token', $this->google_access_token);
+                Session::put(self::SESSION_PREFIX.'google_refresh_token', $this->google_refresh_token);
 
                 return $client;
             }
@@ -86,6 +101,7 @@ class Authenticator
 
         Session::forget(self::SESSION_PREFIX.'anti_forgery_token');
         Session::forget(self::SESSION_PREFIX.'google_access_token');
+        Session::forget(self::SESSION_PREFIX.'google_refresh_token');
     }
 
     public function isLogged()
