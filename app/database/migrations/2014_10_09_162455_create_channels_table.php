@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSubscriptionsTable extends Migration
+class CreateChannelsTable extends Migration
 {
     /**
 	 * Run the migrations.
@@ -11,10 +11,10 @@ class CreateSubscriptionsTable extends Migration
 	 */
     public function up()
     {
-        Schema::create('subscriptions', function ($table) {
+        Schema::create('channels', function ($table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->string('channel_id');
+            $table->string('string_id');
+
             $table->text('resource');
 
             $table->timestamps();
@@ -33,7 +33,7 @@ class CreateSubscriptionsTable extends Migration
     public function down()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS = 0');
-        Schema::drop('subscriptions');
+        Schema::drop('channels');
         DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
 }

@@ -1,10 +1,7 @@
 <?php
 
-
-
-class Subscription extends Eloquent{
-
-
+class Subscription extends Eloquent
+{
     /**
      * The database table used by the model.
      *
@@ -12,6 +9,8 @@ class Subscription extends Eloquent{
      */
     protected $table = 'subscriptions';
 
-
-
+    public function user()
+    {
+      return $this->belongsTo('User');
+    }
 }
