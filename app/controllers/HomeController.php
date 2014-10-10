@@ -1,76 +1,60 @@
 <?php
 
-
 class HomeController extends BaseController
 {
-    protected $authenticator = false;
+    protected $googleAuthenticator = false;
+    protected $userManager = false;
 
     public function index()
     {
         $args = array();
 
-
-        $this->authenticator = App::make('authenticator');
-
-        $args['anti_forgery_token'] = $this->authenticator->getAntiForgeryToken();
-        $args['items'] = array();
-
-        $client = $this->authenticator->doAuth();
-        //var_dump($client);
-        var_dump(Session::all());
-        //var_dump(Session::get('google_access_token', false));
-
-        if ($client) {
-            $args['items'] = $this->getYoutubeStuff($client);
+        if(Auth::user())
+        {
+          //  return Redirect::route('dashboard_index');
         }
 
-        $args['logged'] = $this->authenticator->isLogged();
+//var_dump(Session::all());
 
+        $this->googleAuthenticator = App::make('googleauthenticator');
+        $args['anti_forgery_token'] = $this->googleAuthenticator->getAntiForgeryToken();
 
         return Response::make(View::make("home/index", $args), 200);
     }
 
 
-    protected function getYoutubeStuff($client)
-    {
-        $youtubeService = new Google_Service_YouTube($client);
-        $subscriptions = $youtubeService->subscriptions->listSubscriptions('id,snippet', array('mine'=>true));
-
-        $items = $subscriptions->items;
-        var_dump("items: ".count($items));
-        foreach ($items as $i) {
-            //var_dump($i->getSnippet());
-        }
-
-        return $items;
-    }
-
     public function auth()
     {
         $data = Input::all();
-        $this->authenticator = App::make('authenticator');
+        $this->googleAuthenticator = App::make('googleauthenticator');
+        $this->userManager = App::make('usermanager');
 
-        if ($data['state'] != $this->authenticator->getAntiForgeryToken()) {
+        if ($data['state'] != $this->googleAuthenticator->getAntiForgeryToken()) {
             return Response::json(array(), 401);
         }
 
         $code = $data['code'];
-        $client = $this->authenticator->doAuth($code);
-
+        $client = $this->googleAuthenticator->doAuth($code);
 
         if ($client) {
-            $this->getYoutubeStuff($client);
+            $userInfo = $this->googleAuthenticator->getUserInfo();
+            $user = $this->userManager->getOrRegisterByGoogleId($userInfo->id);
+            if ($client->getRefreshToken()) {
+                $user->google_refresh_token = $client->getRefreshToken();
+                $user->save();
+            }
         }
+
 
         //dd(json_encode(Session::all()));
 
-        return Response::json($data, 200);
+        return Response::json($user, 200);
     }
 
     public function logout()
     {
-        $this->authenticator = App::make('authenticator');
-        $this->authenticator->logout();
+        $this->googleAuthenticator = App::make('googleauthenticator');
+        $this->googleAuthenticator->logout();
         return Redirect::route('home');
     }
 }

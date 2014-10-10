@@ -4,63 +4,38 @@
 Home
 @stop
 
+@section('js_top')
+<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+@stop
+
 @section('body')
   <h1>You have arrived.</h1>
 
-<div>
-    <ul>
-        @foreach($items as $i)
-            <li>
-                {{ $i->getSnippet()->getTitle() }} : {{ $i->getSnippet()->getDescription() }}
-            </li>
-        @endforeach
-    </ul>
-</div>
 <hr/>
 
-<div>
-    <ul>
-        @foreach($items as $i)
-            <li>
-                {{ json_encode($i) }}
-            </li>
-            <li>
-                {{ json_encode($i->getSnippet()) }}
-            </li>
-        @endforeach
-    </ul>
-</div>
-<hr/>
-
-<div id="signinButton">
+<span id="signinButton">
   <span class="g-signin"
-    data-scope="https://www.googleapis.com/auth/youtube.readonly"
+    data-scope="https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/plus.me"
     data-clientid="{{Config::get('ythp.client_id')}}"
     data-redirecturi="postmessage"
     data-accesstype="offline"
     data-cookiepolicy="single_host_origin"
     data-state="{{$anti_forgery_token}}"
     data-callback="signInCallback">
+
   </span>
-</div>
+</span>
 <div id="result"></div>
 
 <div id="logout" >
     <a href="{{route('logout')}}" onclick="gapi.auth.signOut();">Logout</a>
 </div>
 
-    <!-- Place this asynchronous JavaScript just before your </body> tag -->
     <script type="text/javascript">
-      (function() {
-       var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-       po.src = 'https://apis.google.com/js/client:plusone.js';
-       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-     })();
-
-
 
     function signInCallback(authResult) {
-        console.log('signinCallback:');
+
+        console.log('signinCallback + code :');
         console.log(authResult);
 
         if(authResult['status']['signed_in'])
@@ -70,6 +45,7 @@ Home
         }
 
         if (authResult['code']) {
+
             // Nascondi il pulsante di accesso ora che l'utente è autorizzato. Ad esempio:
             $('#signinButton').hide();
             $('#logout').show();
@@ -80,10 +56,7 @@ Home
               url: '{{route('auth')}}',
               //contentType: 'application/octet-stream; charset=utf-8',
               success: function(result) {
-                // Gestisci o verifica la risposta del server, se necessario.
-                console.log("auth result:");
-                console.log(result);
-                $('#result').html(result);
+                window.location= '{{route('dashboard_index')}}';
               },
               error: function(jqXHR,textStatus,errorThrown)
               {
@@ -93,6 +66,7 @@ Home
 
               },
               data: {
+
                 'code': authResult['code'] ,
                 'state': '{{$anti_forgery_token}}'
               }
@@ -107,6 +81,5 @@ Home
 
     }
     </script>
-
 
 @stop

@@ -2,6 +2,8 @@
 
 class Activity extends Eloquent
 {
+    public static $unguarded = true;
+
     /**
      * The database table used by the model.
      *
@@ -11,6 +13,6 @@ class Activity extends Eloquent
 
     public function channel()
     {
-      return $this->belongsTo('Channel');
+        return $this->belongsTo('Channel');
     }
 }

@@ -2,6 +2,8 @@
 
 class Subscription extends Eloquent
 {
+    public static $unguarded = true;
+
     /**
      * The database table used by the model.
      *
@@ -11,6 +13,6 @@ class Subscription extends Eloquent
 
     public function user()
     {
-      return $this->belongsTo('User');
+        return $this->belongsTo('User');
     }
 }

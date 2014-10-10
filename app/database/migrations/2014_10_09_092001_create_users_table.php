@@ -13,11 +13,16 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function ($table) {
             $table->increments('id');
+            $table->string('google_id');
             $table->string('email');
             $table->string('password');
             $table->text('google_refresh_token')->nullable();
+            $table->string('remember_token')->nullable();
             $table->boolean('active')->default(0);
 
+            $table->dateTime('last_login')->nullable();
+
+            $table->dateTime('last_yt_subscriptions_update')->nullable();
             $table->timestamps();
 
             // We'll need to ensure that MySQL uses the InnoDB engine to
@@ -37,5 +42,4 @@ class CreateUsersTable extends Migration
         Schema::drop('users');
         DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
-
 }

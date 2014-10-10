@@ -1,15 +1,20 @@
 <?php
 namespace Stormsson\Ythp;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 
-class Authenticator
+class GoogleAuthenticator
 {
     protected $anti_forgery_token   = false;
     protected $google_access_token  = false;
     protected $google_refresh_token  = false;
     protected $google_client = null;
+
+    protected $google_me = null;
+
+
 
     const SESSION_PREFIX = 'ythp.';
 
@@ -18,7 +23,7 @@ class Authenticator
         $this->google_client = new \Google_Client();
         $this->google_client->setClientId(Config::get('ythp.client_id'));
         $this->google_client->setClientSecret(Config::get('ythp.client_secret'));
-        $this->google_client->setScopes(array('https://www.googleapis.com/auth/youtube.readonly'));
+        $this->google_client->setScopes(array('https://www.googleapis.com/auth/youtube.readonly','https://www.googleapis.com/auth/plus.me'));
         $this->google_client->setRedirectUri('postmessage');
         $this->google_client->setAccessType('offline');
 
@@ -70,7 +75,6 @@ class Authenticator
                 $client->setAccessToken($this->google_access_token);
             }
 
-
             Session::put(self::SESSION_PREFIX.'google_access_token', $client->getAccessToken());
             return $client;
         } else {
@@ -80,7 +84,6 @@ class Authenticator
 
                 $this->google_access_token = $client->getAccessToken();
                 $this->google_refresh_token = $client->getRefreshToken();
-
 
                 Session::put(self::SESSION_PREFIX.'google_access_token', $this->google_access_token);
                 Session::put(self::SESSION_PREFIX.'google_refresh_token', $this->google_refresh_token);
@@ -102,10 +105,31 @@ class Authenticator
         Session::forget(self::SESSION_PREFIX.'anti_forgery_token');
         Session::forget(self::SESSION_PREFIX.'google_access_token');
         Session::forget(self::SESSION_PREFIX.'google_refresh_token');
+
+        if (Auth::user()) {
+            Auth::logout();
+        }
     }
 
     public function isLogged()
     {
         return false !== $this->google_client;
+    }
+
+    public function getUserInfo()
+    {
+        if ($this->google_me) {
+            return $this->google_me;
+        }
+
+        if ($this->isLogged()) {
+            $plus_service = new \Google_Service_Plus($this->getGoogleClient());
+            $this->google_me = $plus_service->people->get('me');
+            return $this->google_me;
+        }
+
+        throw new Exception("User Not logged");
+
+
     }
 }
